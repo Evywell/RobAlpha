@@ -3,6 +3,7 @@
     <ui:VisualElement name="VisualElement" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: center;">
         <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: center; align-self: center;">
             <ui:Button text="Log in" display-tooltip-when-elided="true" name="ButtonLogIn" class="button button-primary" />
+            <ui:Button text="Move" display-tooltip-when-elided="true" name="ButtonMove" class="button button-primary" />
             <ui:Button text="Exit" display-tooltip-when-elided="true" name="ButtonExit" class="button" />
         </ui:VisualElement>
     </ui:VisualElement>

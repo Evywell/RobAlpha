@@ -1,11 +1,17 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using RobClient;
 using RobClient.Game.Entity;
+using RobClient.Network;
 using UnityEngine;
+using System;
 
 namespace UnityClientSources {
     public class GameManager : MonoBehaviour
     {
+        public GameClient GameClient
+        { get; private set; }
+
         [SerializeField]
         private GameObject _prefab;
         private ObjectViewFactory _objectViewFactory = new ObjectViewFactory();
@@ -14,6 +20,14 @@ namespace UnityClientSources {
 
         void Start()
         {
+            var communication = new GatewayCommunication("127.0.0.1", 11111);
+            var gameClientFactory = new GameClientFactory();
+            GameClient = gameClientFactory.Create(communication, communication);
+
+
+            GameClient.Game.WorldObjectUpdatedSub.Subscribe(obj => {
+                UpdateObject(obj);
+            });
         }
 
         void Update()
@@ -32,13 +46,22 @@ namespace UnityClientSources {
                     var view = _localObjects[worldObject.Guid.GetRawValue()].GameObject;
                     var position = worldObject.Position;
 
-                    view.transform.position = new Vector3(position.X, position.Y, position.Z);
+                    view.transform.position = new Vector3(position.X, position.Z, position.Y);
                 } else {
                     // Create the GameObject
                     var objectView = _objectViewFactory.CreateObjectView(worldObject, _prefab);
                     _localObjects.Add(worldObject.Guid.GetRawValue(), new WorldObjectMapping(worldObject, objectView));
                 }
             }
+        }
+
+        void FixedUpdate()
+        {
+            if (GameClient.Game.ControlledObjectId == null) {
+                return;
+            }
+
+            GameClient.Game.Update((int)(Time.fixedDeltaTime * 1000));
         }
 
         public void UpdateObject(WorldObject worldObject)
