@@ -17,12 +17,13 @@ namespace UnityClientSources {
         private ObjectViewFactory _objectViewFactory = new ObjectViewFactory();
         private Dictionary<ulong, WorldObjectMapping> _localObjects = new Dictionary<ulong, WorldObjectMapping>();
         private ConcurrentQueue<WorldObject> _updateObjectQueue = new ConcurrentQueue<WorldObject>();
+        private GatewayCommunication gatewayCommunication;
 
         void Start()
         {
-            var communication = new GatewayCommunication("127.0.0.1", 11111);
+            gatewayCommunication = new GatewayCommunication("127.0.0.1", 11111);
             var gameClientFactory = new GameClientFactory();
-            GameClient = gameClientFactory.Create(communication, communication);
+            GameClient = gameClientFactory.Create(gatewayCommunication, gatewayCommunication);
 
 
             GameClient.Game.WorldObjectUpdatedSub.Subscribe(obj => {
@@ -62,6 +63,11 @@ namespace UnityClientSources {
             }
 
             GameClient.Game.Update((int)(Time.fixedDeltaTime * 1000));
+        }
+
+        async void OnDestroy()
+        {
+            await gatewayCommunication.Disconnect();
         }
 
         public void UpdateObject(WorldObject worldObject)
