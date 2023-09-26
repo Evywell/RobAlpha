@@ -5,6 +5,7 @@ using RobClient.Game.Entity;
 using RobClient.Network;
 using UnityEngine;
 using System;
+using UnityClientSources.Movement;
 
 namespace UnityClientSources {
     public class GameManager : MonoBehaviour
@@ -18,6 +19,9 @@ namespace UnityClientSources {
         private Dictionary<ulong, WorldObjectMapping> _localObjects = new Dictionary<ulong, WorldObjectMapping>();
         private ConcurrentQueue<WorldObject> _updateObjectQueue = new ConcurrentQueue<WorldObject>();
         private GatewayCommunication gatewayCommunication;
+
+        private bool _wasMoving = false;
+        private MovementInfo _previousMovementInfo;
 
         void Start()
         {
@@ -63,6 +67,8 @@ namespace UnityClientSources {
             }
 
             GameClient.Game.Update((int)(Time.fixedDeltaTime * 1000));
+
+            HandlePlayerMovement();
         }
 
         async void OnDestroy()
@@ -73,6 +79,70 @@ namespace UnityClientSources {
         public void UpdateObject(WorldObject worldObject)
         {
             _updateObjectQueue.Enqueue(worldObject);
+        }
+
+        private void HandlePlayerMovement()
+        {
+            // If pressing movement keys (Z, Q, S, D, Space, ...)
+                // Create current movement info object (forward, left, right, jumping, sprinting, ...)
+                // If controlled object is already moving AND previous movement info is equal to current movement info
+                    // return
+                // Move the object
+            // Else If controlled object is moving
+                // Stop the movement 
+
+            var currentMovementInfo = CreateMovementInfoFromGlobals();
+            var isMovementInProgress = currentMovementInfo.IsMovementInProgress();
+            var controlledGameObject = GameClient.Game.GetControlledObject();
+
+            if (!isMovementInProgress && _wasMoving) {
+                // Stop the movement
+
+                _wasMoving = false;
+                _previousMovementInfo = null;
+                return;
+            }
+
+            if (currentMovementInfo == _previousMovementInfo) {
+                return;
+            }
+
+            _previousMovementInfo = currentMovementInfo;
+            _wasMoving = true;
+
+            GameClient.Interaction.Move(controlledGameObject.Position.O);
+        }
+
+        private MovementInfo CreateMovementInfoFromGlobals()
+        {
+            var movementType = GetMovementTypeFromGlobals();
+
+            return new MovementInfo(movementType, Input.GetButtonDown("Space"));
+        }
+
+        private MovementType GetMovementTypeFromGlobals()
+        {
+            if (Input.GetButtonDown("Z"))
+            {
+                return MovementType.Forward;
+            }
+
+            if (Input.GetButtonDown("S"))
+            {
+                return MovementType.Backward;
+            }
+            
+            if (Input.GetButtonDown("Q"))
+            {
+                return MovementType.TurnLeft;
+            }
+
+            if (Input.GetButtonDown("D"))
+            {
+                return MovementType.TurnRight;
+            }
+            
+            return MovementType.None;
         }
     }
 }
