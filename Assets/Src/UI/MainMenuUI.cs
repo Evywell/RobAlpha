@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using System;
 using System.Threading.Tasks;
-using RobClient;
-using RobClient.Network;
 
 namespace UnityClientSources.UI {
     public class MainMenuUI : MonoBehaviour
@@ -11,14 +8,14 @@ namespace UnityClientSources.UI {
         [SerializeField]
         private GameManager _gameManger;
 
+        private VisualElement _root;
+
         private void OnEnable()
         {
-            Debug.Log("OnEnable");
+            _root = GetComponent<UIDocument>().rootVisualElement;
 
-            VisualElement root = GetComponent<UIDocument>().rootVisualElement;
-
-            Button buttonLogin = root.Q<Button>("ButtonLogIn");
-            Button buttonMove = root.Q<Button>("ButtonMove");
+            Button buttonLogin = _root.Q<Button>("ButtonLogIn");
+            Button buttonMove = _root.Q<Button>("ButtonMove");
 
             buttonLogin.clicked += async () => await LogToServer();
             buttonMove.clicked += () => Move();
@@ -26,11 +23,11 @@ namespace UnityClientSources.UI {
 
         private async Task LogToServer()
         {
-            Debug.Log("Clicked");
             var gc = _gameManger.GameClient;
 
             await gc.AuthenticateWithUserId(1);
             await gc.Realm.JoinWorldWithCharacter(1);
+            _root.style.display = DisplayStyle.None;
         }
 
         private void Move()

@@ -15,6 +15,10 @@ namespace UnityClientSources {
 
         [SerializeField]
         private GameObject _prefab;
+
+        [SerializeField]
+        private GameObject _playerPrefab;
+
         private ObjectViewFactory _objectViewFactory = new ObjectViewFactory();
         private Dictionary<ulong, WorldObjectMapping> _localObjects = new Dictionary<ulong, WorldObjectMapping>();
         private ConcurrentQueue<WorldObject> _updateObjectQueue = new ConcurrentQueue<WorldObject>();
@@ -22,6 +26,8 @@ namespace UnityClientSources {
 
         private bool _wasMoving = false;
         private MovementInfo _previousMovementInfo;
+
+        private bool _isCurrentPlayerSpawned = false;
 
         void Start()
         {
@@ -51,7 +57,7 @@ namespace UnityClientSources {
                     var view = _localObjects[worldObject.Guid.GetRawValue()].GameObject;
                     var position = worldObject.Position;
 
-                    view.transform.position = new Vector3(position.X, position.Z, position.Y);
+                    // view.transform.position = new Vector3(position.X, position.Z, position.Y);
                 } else {
                     // Create the GameObject
                     var objectView = _objectViewFactory.CreateObjectView(worldObject, _prefab);
@@ -62,13 +68,15 @@ namespace UnityClientSources {
 
         void FixedUpdate()
         {
+            TrySpawnPlayer();
+
             if (GameClient.Game.ControlledObjectId == null) {
                 return;
             }
 
             GameClient.Game.Update((int)(Time.fixedDeltaTime * 1000));
 
-            HandlePlayerMovement();
+            // HandlePlayerMovement();
         }
 
         async void OnDestroy()
@@ -79,6 +87,39 @@ namespace UnityClientSources {
         public void UpdateObject(WorldObject worldObject)
         {
             _updateObjectQueue.Enqueue(worldObject);
+        }
+
+        private void TrySpawnPlayer()
+        {
+            if (_isCurrentPlayerSpawned) {
+                return;
+            }
+
+            var playerObjectId = GameClient.Game.ControlledObjectId;
+
+            if (playerObjectId == null) {
+                return;
+            }
+
+            WorldObjectMapping? playerObjectMapping = null;
+
+            foreach (var localObject in _localObjects) {
+                if (localObject.Value.WorldObject.Guid.GetRawValue() == playerObjectId.GetRawValue()) {
+                    playerObjectMapping = localObject.Value;
+                    
+                    break;
+                }
+            }
+
+            if (playerObjectMapping != null) {
+                var playerObject = playerObjectMapping.Value.WorldObject;
+                var objectView = _objectViewFactory.CreateObjectView(playerObject, _playerPrefab);
+                _localObjects[playerObject.Guid.GetRawValue()] = new WorldObjectMapping(playerObject, objectView);
+
+                Destroy(playerObjectMapping.Value.GameObject);
+
+                _isCurrentPlayerSpawned = true;
+            }
         }
 
         private void HandlePlayerMovement()

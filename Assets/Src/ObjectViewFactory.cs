@@ -9,7 +9,11 @@ namespace UnityClientSources
         {
             var position = worldObject.Position;
 
-            return GameObject.Instantiate(prefab, new Vector3(position.X, position.Z, position.Y), Quaternion.Euler(position.Z, 0, 0));
+            return GameObject.Instantiate(
+                prefab,
+                new Vector3(position.X, position.Z, position.Y),
+                Quaternion.Euler(position.O, 0, 0)
+            );
         }
     }
 }
