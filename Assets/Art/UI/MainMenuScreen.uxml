@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Art/UI/button.uss?fileID=7433441132597879392&amp;guid=043aac1cfc9e8004c9bf09f9db0d1a22&amp;type=3#button" />
+    <ui:VisualElement name="mainMenu__container" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: center;">
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: center; align-self: center;">
+            <ui:Button text="Log in" display-tooltip-when-elided="true" name="ButtonLogIn" class="button button-primary" />
+            <ui:Button text="Move" display-tooltip-when-elided="true" name="ButtonMove" class="button button-primary" />
+            <ui:Button text="Exit" display-tooltip-when-elided="true" name="ButtonExit" class="button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

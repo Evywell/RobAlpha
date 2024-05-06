@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="LoadingScreen" src="project://database/Assets/Art/UI/Game/LoadingScreen.uxml?fileID=9197481963319205126&amp;guid=8d96074cd93256f148f1a412877b019f&amp;type=3#LoadingScreen" />
+    <ui:Template name="GameScreen" src="project://database/Assets/Art/UI/Game/GameScreen.uxml?fileID=9197481963319205126&amp;guid=6f3baa505a9bb1be99835a82adc9757e&amp;type=3#GameScreen" />
+    <Style src="project://database/Assets/Art/UI/screen.uss?fileID=7433441132597879392&amp;guid=6e229024b67b88adc99d48ee7700f2e4&amp;type=3#screen" />
+    <ui:Instance template="LoadingScreen" name="LoadingScreen" style="width: 100%; height: 100%;" />
+    <ui:Instance template="GameScreen" name="GameScreen" />
+</ui:UXML>
