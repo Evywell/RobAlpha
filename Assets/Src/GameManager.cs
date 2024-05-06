@@ -2,10 +2,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using RobClient;
 using RobClient.Game.Entity;
-using RobClient.Network;
 using UnityEngine;
 using System;
 using UnityClientSources.Movement;
+using Zenject;
+using UnityClientSources.Events;
 
 namespace UnityClientSources {
     public class GameManager : MonoBehaviour
@@ -19,22 +20,28 @@ namespace UnityClientSources {
         [SerializeField]
         private GameObject _playerPrefab;
 
+        [SerializeField]
+        private GameObject _aoeEffect;
+
         private ObjectViewFactory _objectViewFactory = new ObjectViewFactory();
         private Dictionary<ulong, WorldObjectMapping> _localObjects = new Dictionary<ulong, WorldObjectMapping>();
         private ConcurrentQueue<WorldObject> _updateObjectQueue = new ConcurrentQueue<WorldObject>();
-        private GatewayCommunication gatewayCommunication;
 
         private bool _wasMoving = false;
         private MovementInfo _previousMovementInfo;
 
         private bool _isCurrentPlayerSpawned = false;
 
+        private GameObject _controlledGameObject = null;
+
+        [Inject]
+        public void Construct(GameClient gameClient) {
+            GameClient = gameClient;
+        }
+
         void Start()
         {
-            gatewayCommunication = new GatewayCommunication("127.0.0.1", 11111);
-            var gameClientFactory = new GameClientFactory();
-            GameClient = gameClientFactory.Create(gatewayCommunication, gatewayCommunication);
-
+            UIEvents.AssetsLoading?.Invoke();
 
             GameClient.Game.WorldObjectUpdatedSub.Subscribe(obj => {
                 UpdateObject(obj);
@@ -43,6 +50,10 @@ namespace UnityClientSources {
 
         void Update()
         {
+            if (_isCurrentPlayerSpawned && Input.GetKeyUp(KeyCode.Q)) {
+                CastSpell();
+            }
+
             if (_updateObjectQueue.IsEmpty) {
                 return;
             }
@@ -52,10 +63,19 @@ namespace UnityClientSources {
             while (_updateObjectQueue.TryDequeue(out WorldObject worldObject) && processedUpdates < 50) {
                 ++processedUpdates;
 
-                if (_localObjects.ContainsKey(worldObject.Guid.GetRawValue())) {
+                if (_localObjects.TryGetValue(worldObject.Guid.GetRawValue(), out WorldObjectMapping localObjectMapping)) {
                     // Update the GameObject
-                    var view = _localObjects[worldObject.Guid.GetRawValue()].GameObject;
-                    var position = worldObject.Position;
+                    // var view = _localObjects[worldObject.Guid.GetRawValue()].GameObject;
+
+                    Debug.Log($"{worldObject.Guid.GetRawValue()} Health = {worldObject.Health}");
+
+                    localObjectMapping.GameObject.transform.position = new Vector3(
+                        worldObject.Position.X,
+                        worldObject.Position.Y,
+                        worldObject.Position.Z
+                    );
+
+                    // var position = worldObject.Position;
 
                     // view.transform.position = new Vector3(position.X, position.Z, position.Y);
                 } else {
@@ -79,14 +99,19 @@ namespace UnityClientSources {
             // HandlePlayerMovement();
         }
 
-        async void OnDestroy()
-        {
-            await gatewayCommunication.Disconnect();
-        }
-
         public void UpdateObject(WorldObject worldObject)
         {
             _updateObjectQueue.Enqueue(worldObject);
+        }
+
+        private void CastSpell() 
+        {
+            if (_controlledGameObject == null) {
+                return;
+            }
+
+            GameClient.Interaction.CastSpell(1);
+            Instantiate(_aoeEffect, _controlledGameObject.transform);
         }
 
         private void TrySpawnPlayer()
@@ -119,6 +144,7 @@ namespace UnityClientSources {
                 Destroy(playerObjectMapping.Value.GameObject);
 
                 _isCurrentPlayerSpawned = true;
+                _controlledGameObject = objectView.transform.Find("PlayerArmature").gameObject;
             }
         }
 

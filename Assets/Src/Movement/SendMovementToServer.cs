@@ -73,8 +73,8 @@ public class SendMovementToServer : MonoBehaviour
 
         _gameManager.GameClient.Interaction.MoveClient(
             _currentPosition.x,
-            _currentPosition.y,
             _currentPosition.z,
+            _currentPosition.y,
             1.0f
         );
 
