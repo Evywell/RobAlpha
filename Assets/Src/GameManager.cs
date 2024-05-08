@@ -145,6 +145,7 @@ namespace UnityClientSources {
 
                 _isCurrentPlayerSpawned = true;
                 _controlledGameObject = objectView.transform.Find("PlayerArmature").gameObject;
+                _controlledGameObject.AddComponent<SendMovementToServer>();
             }
         }
 

@@ -50,7 +50,7 @@ namespace UnityClientSources.Managers
         public void UIEvents_OnJoinWorldClicked()
         {
             GameEvents.WorldJoining?.Invoke();
-            GameObject.Find("Main Camera").SetActive(false);
+            //GameObject.Find("Main Camera").SetActive(false);
             SceneEvents.SceneIndexLoaded?.Invoke(1);
             CurrentScreen.Hide();
             //Show(m_GameScreen);
