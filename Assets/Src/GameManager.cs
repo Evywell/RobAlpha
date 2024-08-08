@@ -54,6 +54,40 @@ namespace UnityClientSources {
                 CastSpell();
             }
 
+            if (_isCurrentPlayerSpawned && Input.GetKeyUp(KeyCode.E)) {
+                StartAttack();
+            }
+
+            if (_controlledGameObject != null) {
+                var controlledTransform = _controlledGameObject.transform;
+                var rayStartPosition = controlledTransform.position + new Vector3(0, 2, 0);
+                var directionVector = new Vector3(controlledTransform.forward.x, 0, controlledTransform.forward.z).normalized;
+
+                Debug.DrawRay(
+                    rayStartPosition, 
+                    new Vector3(controlledTransform.forward.x, 0, controlledTransform.forward.z).normalized, 
+                    Color.red, 
+                    0, 
+                    false
+                );
+
+                Debug.DrawRay(
+                    rayStartPosition, 
+                    Quaternion.AngleAxis(-60, Vector3.up) * directionVector,
+                    Color.blue, 
+                    0, 
+                    false
+                );
+
+                Debug.DrawRay(
+                    rayStartPosition, 
+                    Quaternion.AngleAxis(60, Vector3.up) * directionVector,
+                    Color.blue, 
+                    0, 
+                    false
+                );
+            }
+
             if (_updateObjectQueue.IsEmpty) {
                 return;
             }
@@ -114,6 +148,21 @@ namespace UnityClientSources {
             Instantiate(_aoeEffect, _controlledGameObject.transform);
         }
 
+        private void StartAttack()
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hit)) {
+                GameObject gameObjectHit = hit.transform.gameObject;
+
+                foreach (var localObject in _localObjects) {
+                    if (localObject.Value.GameObject == gameObjectHit) {
+                        GameClient.Interaction.EngageCombat(localObject.Value.WorldObject.Guid);
+                    }
+                }
+            }
+        }
+
         private void TrySpawnPlayer()
         {
             if (_isCurrentPlayerSpawned) {
@@ -139,6 +188,8 @@ namespace UnityClientSources {
             if (playerObjectMapping != null) {
                 var playerObject = playerObjectMapping.Value.WorldObject;
                 var objectView = _objectViewFactory.CreateObjectView(playerObject, _playerPrefab);
+
+                Debug.Log($"Creating player at {objectView.transform.position.x};{objectView.transform.position.z}");
                 _localObjects[playerObject.Guid.GetRawValue()] = new WorldObjectMapping(playerObject, objectView);
 
                 Destroy(playerObjectMapping.Value.GameObject);

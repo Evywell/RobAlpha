@@ -1,5 +1,6 @@
 using UnityEngine;
 using RobClient.Game.Entity;
+using UnityClientSources.Movement;
 
 namespace UnityClientSources
 {
@@ -12,7 +13,11 @@ namespace UnityClientSources
             return GameObject.Instantiate(
                 prefab,
                 new Vector3(position.X, position.Z, position.Y),
-                Quaternion.Euler(position.O, 0, 0)
+                Quaternion.Euler(
+                    0, 
+                    PositionNormalizer.TransformServerOrientationToUnityOrientation(position.O) * Mathf.Rad2Deg, 
+                    0
+                )
             );
         }
     }

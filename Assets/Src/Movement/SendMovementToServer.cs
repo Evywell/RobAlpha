@@ -1,4 +1,5 @@
 using UnityClientSources;
+using UnityClientSources.Movement;
 using UnityEngine;
 
 public class SendMovementToServer : MonoBehaviour
@@ -71,15 +72,27 @@ public class SendMovementToServer : MonoBehaviour
         _previousPosition.y = _currentPosition.y;
         _previousPosition.z = _currentPosition.z;
 
+        _playerTransform.rotation.ToAngleAxis(out float orientationDeg, out _);
+
+        float orientationRad = orientationDeg * Mathf.Deg2Rad;
+
+        float orientation = NormalizeOrientation(PositionNormalizer.TransformUnityOrientationToServerOrientation(orientationRad));
+
         _gameManager.GameClient.Interaction.MoveClient(
             _currentPosition.x,
             _currentPosition.z,
             _currentPosition.y,
-            1.0f
+            orientation
         );
 
         _shouldSendPosition = false;
 
-        Debug.Log("Sending movement to server...");
+        Debug.Log($"Sending movement to server... {_currentPosition}");
+        Debug.Log($"Orientation rad {orientationRad}");
+        Debug.Log($"Orientation sent {orientation}");
+    }
+
+    private float NormalizeOrientation(float orientation) {
+        return orientation % (2 * Mathf.PI);
     }
 }
