@@ -1,12 +1,33 @@
+using System.Reactive.Linq;
+using RobClient;
 using UnityEngine;
+using System;
+using UnityClientSources;
+using Zenject;
 
 public class DrawOrientation : MonoBehaviour
 {
+    private GameClient _gameClient;
     private Transform _localTransform;
+
+    private bool _isInFrontOf = false;
+
+    [Inject]
+    public void Construct(GameClient gameClient)
+    {
+        _gameClient = gameClient;
+    }
 
     private void Start()
     {
+        var gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         _localTransform = GetComponent<Transform>();
+
+        _gameClient.Game.DebugSignalSub
+            .Where(signal => signal.Name == "IS_IN_FRONT_OF")
+            .Subscribe(signal => {
+                _isInFrontOf = signal.Value == 1;
+            });
     }
 
     private void Update()
@@ -17,7 +38,7 @@ public class DrawOrientation : MonoBehaviour
         Debug.DrawRay(
             rayStartPosition, 
             directionVector, 
-            Color.red, 
+            _isInFrontOf ? Color.green : Color.red, 
             0, 
             false
         );

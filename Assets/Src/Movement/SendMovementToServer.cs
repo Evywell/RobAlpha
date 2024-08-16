@@ -1,10 +1,11 @@
-using UnityClientSources;
+using RobClient;
 using UnityClientSources.Movement;
 using UnityEngine;
+using Zenject;
 
 public class SendMovementToServer : MonoBehaviour
 {
-    private GameManager _gameManager;
+    private GameClient _gameClient;
 
     private Transform _playerTransform;
 
@@ -18,9 +19,14 @@ public class SendMovementToServer : MonoBehaviour
 
     private const float TimeBetweenServerUpdates = 0.2f; // In seconds
 
+    [Inject]
+    public void Construct(GameClient gameClient)
+    {
+        _gameClient = gameClient;
+    }
+
     private void Start()
     {
-        _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         _playerTransform = GetComponent<Transform>();
         _currentPosition = _playerTransform.position;
     }
@@ -78,7 +84,7 @@ public class SendMovementToServer : MonoBehaviour
 
         float orientation = NormalizeOrientation(PositionNormalizer.TransformUnityOrientationToServerOrientation(orientationRad));
 
-        _gameManager.GameClient.Interaction.MoveClient(
+        _gameClient.Interaction.MoveClient(
             _currentPosition.x,
             _currentPosition.z,
             _currentPosition.y,

@@ -356,8 +356,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08848d8d9b9f60b5c8365d41d1d607a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 3184486565177964691, guid: 4d11b0f3019afc385982d80903a696cf, type: 3}
-  _playerPrefab: {fileID: 3041675248192850948, guid: 0a7c84cb7803cf16c8bf35e4ab517d32, type: 3}
   _aoeEffect: {fileID: 8378648546881499446, guid: 78ba598f5952294a29d9538affc51b35, type: 3}
 --- !u!1 &364226870
 GameObject:
@@ -659,6 +657,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d382ab1cf87a69844aa2db5d1d9fb91c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ObjPrefab: {fileID: 3184486565177964691, guid: 4d11b0f3019afc385982d80903a696cf, type: 3}
+  PlayerPrefab: {fileID: 3041675248192850948, guid: 0a7c84cb7803cf16c8bf35e4ab517d32, type: 3}
 --- !u!1 &897412255
 GameObject:
   m_ObjectHideFlags: 0
