@@ -23,7 +23,7 @@ namespace UnityClientSources
 
         public GameObject CreateBasicGameObjectView(WorldObject worldObject)
         {
-            return CreateObjectView(worldObject, _basicGameObjectfactory.Create().gameObject);
+            return CreateObjectView(worldObject, _basicGameObjectfactory.Create(worldObject).gameObject);
         }
 
         private GameObject CreateObjectView(WorldObject worldObject, GameObject gameObject)

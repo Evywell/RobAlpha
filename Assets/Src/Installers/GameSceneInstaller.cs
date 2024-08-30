@@ -1,5 +1,6 @@
+using RobClient.Game.Entity;
 using UnityClientSources;
-using UnityClientSources.Entities;
+using UnityPlayer = UnityClientSources.Entities.Player;
 using UnityEngine;
 using Zenject;
 
@@ -11,7 +12,7 @@ public class GameSceneInstaller : MonoInstaller
     public override void InstallBindings()
     {
         Container.Bind<ObjectViewFactory>().AsSingle();
-        Container.BindFactory<GameObjScript, GameObjScript.Factory>().FromComponentInNewPrefab(ObjPrefab);
-        Container.BindFactory<Player, Player.Factory>().FromComponentInNewPrefab(PlayerPrefab);
+        Container.BindFactory<WorldObject, GameObjScript, GameObjScript.Factory>().FromComponentInNewPrefab(ObjPrefab);
+        Container.BindFactory<UnityPlayer, UnityPlayer.Factory>().FromComponentInNewPrefab(PlayerPrefab);
     }
 }

@@ -78,9 +78,7 @@ public class SendMovementToServer : MonoBehaviour
         _previousPosition.y = _currentPosition.y;
         _previousPosition.z = _currentPosition.z;
 
-        _playerTransform.rotation.ToAngleAxis(out float orientationDeg, out _);
-
-        float orientationRad = orientationDeg * Mathf.Deg2Rad;
+        float orientationRad = _playerTransform.rotation.eulerAngles.y * Mathf.Deg2Rad;
 
         float orientation = NormalizeOrientation(PositionNormalizer.TransformUnityOrientationToServerOrientation(orientationRad));
 

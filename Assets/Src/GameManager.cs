@@ -6,6 +6,8 @@ using UnityEngine;
 using System;
 using Zenject;
 using UnityClientSources.Events;
+using RobClient.Game;
+using UnityClientSources.Movement;
 
 namespace UnityClientSources {
     public class GameManager : MonoBehaviour
@@ -18,7 +20,7 @@ namespace UnityClientSources {
 
         private ObjectViewFactory _objectViewFactory;
         private Dictionary<ulong, WorldObjectMapping> _localObjects = new Dictionary<ulong, WorldObjectMapping>();
-        private ConcurrentQueue<WorldObject> _updateObjectQueue = new ConcurrentQueue<WorldObject>();
+        private ConcurrentQueue<WorldObjectUpdate> _updateObjectQueue = new ConcurrentQueue<WorldObjectUpdate>();
 
         private bool _isCurrentPlayerSpawned = false;
 
@@ -34,8 +36,8 @@ namespace UnityClientSources {
         {
             UIEvents.AssetsLoading?.Invoke();
 
-            GameClient.Game.WorldObjectUpdatedSub.Subscribe(obj => {
-                UpdateObject(obj);
+            GameClient.Game.WorldObjectUpdatedSub.Subscribe(update => {
+                UpdateObject(update);
             });
         }
 
@@ -85,20 +87,31 @@ namespace UnityClientSources {
 
             var processedUpdates = 0;
 
-            while (_updateObjectQueue.TryDequeue(out WorldObject worldObject) && processedUpdates < 50) {
+            while (_updateObjectQueue.TryDequeue(out WorldObjectUpdate update) && processedUpdates < 50) {
                 ++processedUpdates;
+
+                WorldObject worldObject = update.WorldObject;
 
                 if (_localObjects.TryGetValue(worldObject.Guid.GetRawValue(), out WorldObjectMapping localObjectMapping)) {
                     // Update the GameObject
                     // var view = _localObjects[worldObject.Guid.GetRawValue()].GameObject;
 
-                    Debug.Log($"{worldObject.Guid.GetRawValue()} Health = {worldObject.Health}");
+                    switch (update.Type) {
+                        case UpdateType.RESOURCE:
+                            Debug.Log($"{worldObject.Guid.GetRawValue()} Health = {worldObject.Health}");
+                            break;
 
-                    localObjectMapping.GameObject.transform.position = new Vector3(
-                        worldObject.Position.X,
-                        worldObject.Position.Y,
-                        worldObject.Position.Z
-                    );
+                        case UpdateType.POSITION:
+                            break;
+
+                        case UpdateType.SPAWN:
+                            localObjectMapping.GameObject.transform.position = new Vector3(
+                                worldObject.Position.X,
+                                worldObject.Position.Y,
+                                worldObject.Position.Z
+                            );
+                            break;
+                    }
 
                     // var position = worldObject.Position;
 
@@ -122,9 +135,9 @@ namespace UnityClientSources {
             GameClient.Game.Update((int)(Time.fixedDeltaTime * 1000));
         }
 
-        public void UpdateObject(WorldObject worldObject)
+        public void UpdateObject(WorldObjectUpdate update)
         {
-            _updateObjectQueue.Enqueue(worldObject);
+            _updateObjectQueue.Enqueue(update);
         }
 
         private void CastSpell() 
