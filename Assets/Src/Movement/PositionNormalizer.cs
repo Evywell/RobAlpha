@@ -22,17 +22,13 @@ namespace UnityClientSources.Movement {
 
         public static float TransformServerOrientationToUnityOrientation(float orientation) {
             if (orientation <= PI_2) {
-                Debug.Log($"{orientation} <= PI_2");
                 return PI_2 - orientation;
             } else if (orientation > PI_2 && orientation <= PI) {
-                Debug.Log($"{orientation} > PI_2 && {orientation} <= PI");
                 return PI + (A3_PI_2 - orientation);
             } else if (orientation >= A3_PI_2 && orientation <= A2_PI) {
-                Debug.Log($"{orientation} >= A3_PI_2 && {orientation} <= A2_PI");
                 return PI - (orientation - (A3_PI_2));
             }
 
-            Debug.Log("ELSE");
             return (orientation - PI) + A3_PI_2;
         }
 

@@ -91,9 +91,9 @@ public class SendMovementToServer : MonoBehaviour
 
         _shouldSendPosition = false;
 
-        Debug.Log($"Sending movement to server... {_currentPosition}");
-        Debug.Log($"Orientation rad {orientationRad}");
-        Debug.Log($"Orientation sent {orientation}");
+        //Debug.Log($"Sending movement to server... {_currentPosition}");
+        //Debug.Log($"Orientation rad {orientationRad}");
+        //Debug.Log($"Orientation sent {orientation}");
     }
 
     private float NormalizeOrientation(float orientation) {
