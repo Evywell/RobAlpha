@@ -1,4 +1,5 @@
 using RobClient;
+using StarterAssets;
 using UnityClientSources.Movement;
 using UnityEngine;
 using Zenject;
@@ -12,6 +13,8 @@ public class SendMovementToServer : MonoBehaviour
     private Vector3 _currentPosition;
 
     private Vector3 _previousPosition;
+
+    private ThirdPersonController _thirdPersonController;
 
     private bool _shouldSendPosition = true;
 
@@ -28,6 +31,7 @@ public class SendMovementToServer : MonoBehaviour
     private void Start()
     {
         _playerTransform = GetComponent<Transform>();
+        _thirdPersonController = GetComponent<ThirdPersonController>();
         _currentPosition = _playerTransform.position;
     }
 
@@ -78,6 +82,9 @@ public class SendMovementToServer : MonoBehaviour
         _previousPosition.y = _currentPosition.y;
         _previousPosition.z = _currentPosition.z;
 
+        float forward = _thirdPersonController.InputDirection.x;
+        float strafe = _thirdPersonController.InputDirection.z;
+
         float orientationRad = _playerTransform.rotation.eulerAngles.y * Mathf.Deg2Rad;
 
         float orientation = NormalizeOrientation(PositionNormalizer.TransformUnityOrientationToServerOrientation(orientationRad));
@@ -86,7 +93,8 @@ public class SendMovementToServer : MonoBehaviour
             _currentPosition.x,
             _currentPosition.z,
             _currentPosition.y,
-            orientation
+            orientation,
+            new RobClient.Game.Entity.Vector3f(forward, strafe, 0)
         );
 
         _shouldSendPosition = false;
