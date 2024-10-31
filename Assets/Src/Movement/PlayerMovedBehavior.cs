@@ -21,7 +21,8 @@ public class PlayerMovedBehavior : MonoBehaviour
             _currentPosition.x,
             _currentPosition.y,
             _currentPosition.z,
-            1.0f
+            1.0f,
+            new RobClient.Game.Entity.Vector3f(0, 0, 0)
         );
 
         Debug.Log("Sending movement to server...");

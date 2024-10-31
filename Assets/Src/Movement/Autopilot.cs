@@ -28,14 +28,20 @@ namespace UnityClientSources.Movement {
                 return;
             }
 
-            float serverOrientation = PositionNormalizer.TransformServerOrientationToUnityOrientation(_worldObject.Position.O) * Mathf.Rad2Deg;
-            Quaternion rotation = Quaternion.Euler(0, serverOrientation, 0);
+            float unityOrientationDeg = PositionNormalizer.TransformServerOrientationToUnityOrientation(_worldObject.Position.O) * Mathf.Rad2Deg;
+            Quaternion rotation = Quaternion.Euler(0, unityOrientationDeg, 0);
 
             transform.rotation = rotation;
 
-            Vector3 targetDirection = rotation * Vector3.forward;
+            float targetRotation = Mathf.Atan2(_worldObject.Direction.X, _worldObject.Direction.Y) * Mathf.Rad2Deg;
+            float unityTargetOrientation = PositionNormalizer.TransformServerOrientationToUnityOrientation(targetRotation);
+            //Vector3 targetDirection = Quaternion.Euler(0.0f, unityTargetOrientation, 0.0f) * Vector3.forward;
+            Vector3 targetDirection = new Vector3(_worldObject.Direction.X, _worldObject.Direction.Z, _worldObject.Direction.Y);
 
             _characterController.Move(Time.deltaTime * _speed * targetDirection.normalized);
+
+            Debug.Log($"target orientation from direction {unityTargetOrientation}");
+            Debug.Log($"target direction {targetDirection}");
 
             Debug.Log($"orientation server {_worldObject.Position.O}");
             Debug.Log($"orientation client {PositionNormalizer.TransformServerOrientationToUnityOrientation(_worldObject.Position.O)}");
