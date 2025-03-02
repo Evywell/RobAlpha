@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using Fr.Raven.Proto.Message.Game;
 using RobClient.Game.Entity;
 using UnityEngine;
+using UnityEngine.AI;
 using Zenject;
 
 namespace UnityClientSources.Movement {
@@ -7,8 +10,10 @@ namespace UnityClientSources.Movement {
         private WorldObject _worldObject;
         private readonly float _speed = 3.5f; 
         private CharacterController _characterController;
+        private NavMeshAgent _navMeshAgent;
         private float _nextPositionMismatchCheckTime = 0;
         private Vector3 _lastHandledPosition;
+        private TravelPlanExecutor _travelPlanExecutor;
 
         [Inject]
         public void Construct(WorldObject worldObject)
@@ -20,6 +25,8 @@ namespace UnityClientSources.Movement {
         private void Start()
         {
             _characterController = gameObject.AddComponent<CharacterController>();
+            _navMeshAgent = gameObject.GetComponent<NavMeshAgent>();
+            _travelPlanExecutor = new TravelPlanExecutor(_worldObject, _navMeshAgent);
         }
 
         private void FixedUpdate()
@@ -28,6 +35,9 @@ namespace UnityClientSources.Movement {
                 return;
             }
 
+            _travelPlanExecutor.Execute();
+
+            /*
             float unityOrientationDeg = PositionNormalizer.TransformServerOrientationToUnityOrientation(_worldObject.Position.O) * Mathf.Rad2Deg;
             Quaternion rotation = Quaternion.Euler(0, unityOrientationDeg, 0);
 
@@ -46,6 +56,7 @@ namespace UnityClientSources.Movement {
             Debug.Log($"orientation server {_worldObject.Position.O}");
             Debug.Log($"orientation client {PositionNormalizer.TransformServerOrientationToUnityOrientation(_worldObject.Position.O)}");
             Debug.Log($"Normalized orientation {targetDirection.normalized}");
+            */
 
             ResolvePositionMismatch();
         }
@@ -72,6 +83,8 @@ namespace UnityClientSources.Movement {
             _lastHandledPosition.x = _worldObject.Position.X;
             _lastHandledPosition.y = _worldObject.Position.Y;
             _lastHandledPosition.z = _worldObject.Position.Z;
+
+            // Debug.Log($"Teleport to {_lastHandledPosition.x};{_lastHandledPosition.y};{_lastHandledPosition.z}");
         }
 
         private bool IsPositionDirty()

@@ -7,7 +7,6 @@ using System;
 using Zenject;
 using UnityClientSources.Events;
 using RobClient.Game;
-using UnityClientSources.Movement;
 
 namespace UnityClientSources {
     public class GameManager : MonoBehaviour
@@ -105,10 +104,11 @@ namespace UnityClientSources {
                             break;
 
                         case UpdateType.SPAWN:
+                            Debug.Log($"{worldObject.Guid.GetRawValue()} Spawn");
                             localObjectMapping.GameObject.transform.position = new Vector3(
                                 worldObject.Position.X,
-                                worldObject.Position.Y,
-                                worldObject.Position.Z
+                                worldObject.Position.Z,
+                                worldObject.Position.Y
                             );
                             break;
                     }
@@ -119,6 +119,7 @@ namespace UnityClientSources {
                 } else {
                     // Create the GameObject
                     var objectView = _objectViewFactory.CreateBasicGameObjectView(worldObject);
+                    Debug.Log($"Creating world object {worldObject.Guid.GetRawValue()} at {objectView.transform.position.x};{objectView.transform.position.z}");
                     _localObjects.Add(worldObject.Guid.GetRawValue(), new WorldObjectMapping(worldObject, objectView));
                 }
             }
@@ -191,7 +192,7 @@ namespace UnityClientSources {
                 var playerObject = playerObjectMapping.Value.WorldObject;
                 var objectView = _objectViewFactory.CreatePlayerGameObjectView(playerObject);
 
-                Debug.Log($"Creating player at {objectView.transform.position.x};{objectView.transform.position.z}");
+                Debug.Log($"Creating player {playerObjectId.GetRawValue()} at {objectView.transform.position.x};{objectView.transform.position.z}");
                 _localObjects[playerObject.Guid.GetRawValue()] = new WorldObjectMapping(playerObject, objectView);
 
                 Destroy(playerObjectMapping.Value.GameObject);
